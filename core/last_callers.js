@@ -74,12 +74,22 @@ exports.getModule = class LastCallersModule extends MenuModule {
                                     return false === User.isRootUserId(parseInt(lh.log_value)); //  log_value=userId
                                 });
 
+                                var prevUserId = 0;
+                                const mergeOpLoginHistory = loginHistory.filter(lh => {
+                                    const merge = prevUserId === lh.log_value;
+                                    prevUserId = lh.log_value; //  log_value=userId
+                                    return merge === false; 
+                                });
+
                                 //
                                 //  If we have enough items to display, or hideSysOpLogin is set to 'always',
                                 //  then set loginHistory to our filtered list. Else, we'll leave it be.
                                 //
-                                if(noOpLoginHistory.length >= callersView.dimens.height || 'always' === self.menuConfig.config.hideSysOpLogin) {
+                                if(noOpLoginHistory.length >= callersView.dimens.height && 'always' === self.menuConfig.config.hideSysOpLogin) {
                                     loginHistory = noOpLoginHistory;
+                                }
+                                else if(mergeOpLoginHistory.length >= callersView.dimens.height && 'merge' === self.menuConfig.config.hideSysOpLogin) {
+                                    loginHistory = mergeOpLoginHistory;
                                 }
                             }
 
